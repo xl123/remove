@@ -1,0 +1,66 @@
+<?php
+
+!defined('IN_COWFRAME') && exit('Access Denied');
+
+class control extends index
+{
+	function remove_bom()
+	{
+		$this->checkdir('/dev/dafamao_web');
+		echo "<br/>---end---";
+	}
+
+	function checkdir($basedir)
+	{
+		if($dh = opendir($basedir))
+		{
+			while(($file = readdir($dh)) !== false)
+				if($file != '.' && $file != '..')
+				{
+					if(is_dir("$basedir/$file"))
+					{
+						$dirname = "$basedir/$file";
+						$this->checkdir($dirname);
+					}
+					else if(substr($file, strlen($file) - 3) == 'htm' || substr($file, strlen($file) - 3) == 'php')
+					{
+						echo "<br/>"."$basedir/$file: ";
+						$this->checkFile("$basedir/$file");
+					}
+				}
+
+			closedir($dh);
+		}
+	}
+
+	function checkFile($filename)
+	{
+		$contents = file_get_contents($filename);
+		$len = strlen($contents);
+
+		//bom
+		if($len > 2 && ord($contents[0]) == 239 && ord($contents[1]) == 187 && ord($contents[2]) == 191)
+			$contents = substr($contents, 3);
+
+		//头部空行
+		for($i = 0; $contents != '' && $i < strlen($contents) && (ord($contents[$i]) == 13 || ord($contents[$i]) == 10); ++$i) ;
+		if($i < strlen($contents)) $contents = substr($contents, $i); else $contents = '';
+
+
+		//尾部空行
+		for($i = strlen($contents) - 1; $contents != '' && $i > -1 && (ord($contents[$i]) == 13 || ord($contents[$i]) == 10); --$i) ;
+		if($i > -1) $contents = substr($contents, 0, $i + 1);
+
+		$this->rewrite($filename, $contents);
+
+		if($len != strlen($contents)) echo "<font color='red'>被修正了</font>";
+	}
+
+	function rewrite($filename, $data)
+	{
+		$filenum = fopen($filename, "w");
+		flock($filenum, LOCK_EX);
+		fwrite($filenum, $data);
+		fclose($filenum);
+	}
+}
