@@ -46,7 +46,6 @@ class control extends index
 		for($i = 0; $contents != '' && $i < strlen($contents) && (ord($contents[$i]) == 13 || ord($contents[$i]) == 10); ++$i) ;
 		if($i < strlen($contents)) $contents = substr($contents, $i); else $contents = '';
 
-
 		//尾部空行
 		for($i = strlen($contents) - 1; $contents != '' && $i > -1 && (ord($contents[$i]) == 13 || ord($contents[$i]) == 10); --$i) ;
 		if($i > -1) $contents = substr($contents, 0, $i + 1);
