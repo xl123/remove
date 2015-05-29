@@ -38,7 +38,7 @@ class control extends index
 		$contents = file_get_contents($filename);
 		$len = strlen($contents);
 
-		//bom
+		//bom头
 		if($len > 2 && ord($contents[0]) == 239 && ord($contents[1]) == 187 && ord($contents[2]) == 191)
 			$contents = substr($contents, 3);
 
